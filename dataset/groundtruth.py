@@ -3,11 +3,11 @@ import pytesseract
 from PIL import Image
 
 # Define the folder path containing the images
-folder_path = r'D:\\custom_dataset\\unprepared'
+folder_path = r'dataset\data\unprepared'
 
 # Loop through each file in the folder
 for filename in os.listdir(folder_path):
-    if filename.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
+    if filename.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')) and filename>="101.png":
         # Construct full file path
         file_path = os.path.join(folder_path, filename)
         
