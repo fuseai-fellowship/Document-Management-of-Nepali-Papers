@@ -1,3 +1,5 @@
 pyarrow
 pandas[performance, parquet, aws]
 pendulum
+pytesseract
+pillow
