@@ -5,6 +5,9 @@ from PIL import Image
 # Define the folder path containing the images
 folder_path = r'dataset\data\unprepared\lined'
 
+# Initialize the counter
+counter = 859
+
 # Loop through each file in the folder
 for filename in os.listdir(folder_path):
     if filename.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
@@ -14,14 +17,22 @@ for filename in os.listdir(folder_path):
         # Open the image file
         with Image.open(file_path) as img:
             # Use Tesseract to extract text from the image
-            text = pytesseract.image_to_string(img,lang='nep')
+            text = pytesseract.image_to_string(img, lang='nep')
         
         # Create a new .gt.txt file for each image
-        gt_filename = f"{os.path.splitext(filename)[0]}.gt.txt"
+        gt_filename = f"{counter}.gt.txt"
         gt_file_path = os.path.join(folder_path, gt_filename)
         
         # Write the extracted text into the .gt.txt file
         with open(gt_file_path, 'w', encoding='utf-8') as gt_file:
             gt_file.write(text)
+        
+        # Rename the image file to the counter name with the original extension
+        new_filename = f"{counter}{os.path.splitext(filename)[1]}"
+        new_file_path = os.path.join(folder_path, new_filename)
+        os.rename(file_path, new_file_path)
+        
+        # Increment the counter
+        counter += 1
 
-print("Text extraction and file creation completed.")
+print("Text extraction, file renaming, and file creation completed.")
