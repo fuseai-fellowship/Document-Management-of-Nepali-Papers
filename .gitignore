@@ -151,3 +151,17 @@ cython_debug/
 
 # Personal key files
 *.pem
+
+#models
+models/
+pages/
+raw/
+
+#paged images
+# Ignore images within the dataset/unprepared folder
+dataset/data/unprepared/*.png
+dataset/data/unprepared/*.jpg
+dataset/data/unprepared/*.jpeg
+dataset/data/unprepared/*.gif
+dataset/data/unprepared/*.bmp
+dataset/data/unprepared/*.tiff
