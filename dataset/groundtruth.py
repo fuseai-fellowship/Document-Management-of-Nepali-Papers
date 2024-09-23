@@ -3,10 +3,10 @@ import pytesseract
 from PIL import Image
 
 # Define the folder path containing the images
-folder_path = r'dataset\data\unprepared\lined'
+folder_path = r'C:\Users\lamsa\Downloads\OneDrive_2024-09-22\Lined Image'
 
 # Initialize the counter
-counter = 859
+counter = 867
 
 # Loop through each file in the folder
 for filename in os.listdir(folder_path):
