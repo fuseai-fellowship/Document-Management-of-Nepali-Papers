@@ -1,4 +1,4 @@
-# recordnepalu
+# recordnepali
 
 ## Introduction
 ## Goals
