@@ -1,11 +1,14 @@
 import streamlit as st
+from streamlit_modal import Modal
 import os
 import pytesseract
 from PIL import Image
 from datetime import datetime
+import hashlib
 from Classification.predict import predict_category  # Import the predict_category function
-from Preprocessing.preprocess import preprocess_image
-
+from OCR.preprocess import preprocess_image
+from OCR.highlighting import highlight_text
+from streamlit_js_eval import streamlit_js_eval
 # Set the page configuration to wide layout
 st.set_page_config(layout="wide")
 
@@ -25,7 +28,7 @@ st.markdown(
     .css-1d391kg {
         padding-top: 0;
     }
-
+    
     /* Custom header sizes */
     .small-header {
         font-size: 1.2em; /* Decreased size */
@@ -33,6 +36,7 @@ st.markdown(
     .smaller-header {
         font-size: 1em; /* Decreased size */
     }
+
     </style>
     """,
     unsafe_allow_html=True
@@ -41,13 +45,14 @@ st.markdown(
 def process_document(uploaded_file):
     # Preprocess the image
     preprocessed_image = preprocess_image(uploaded_file)
+    preprocessed_image_pil = Image.fromarray(preprocessed_image)
     text = pytesseract.image_to_string(preprocessed_image, lang="nep-fuse-2") 
     data = pytesseract.image_to_data(preprocessed_image, output_type=pytesseract.Output.STRING, lang='nep-fuse-2')
     pdf = pytesseract.image_to_pdf_or_hocr(preprocessed_image, extension='pdf', lang='nep-fuse-2')
     category = predict_category(text)
-    return text, category, data, pdf
+    return text, category, data, pdf, preprocessed_image_pil  # Return preprocessed image
 
-def save_document(uploaded_file, text, category, data, pdf):
+def save_document(uploaded_file, text, category, data, pdf, preprocessed_image):
     # Create category directory if it doesn't exist
     category_dir = os.path.join('..', '..', 'results', 'documents', category)
     os.makedirs(category_dir, exist_ok=True)
@@ -65,6 +70,10 @@ def save_document(uploaded_file, text, category, data, pdf):
     with open(image_filename, 'wb') as image_file:
         image_file.write(uploaded_file.getbuffer())
     
+    # Save the preprocessed image
+    preprocessed_image_filename = os.path.join(document_dir, f"{base_filename}_preprocessed.png")
+    preprocessed_image.save(preprocessed_image_filename)  # Save preprocessed image using PIL
+
     # Save the text file
     text_filename = os.path.join(document_dir, f"{base_filename}.txt")
     with open(text_filename, 'w', encoding='utf-8') as text_file:
@@ -72,7 +81,6 @@ def save_document(uploaded_file, text, category, data, pdf):
     
     # Save the PDF file
     pdf_filename = os.path.join(document_dir, f"{base_filename}.pdf")
-    image = Image.open(uploaded_file)
     with open(pdf_filename, 'wb') as pdf_file:
         pdf_file.write(pdf)
     
@@ -81,7 +89,7 @@ def save_document(uploaded_file, text, category, data, pdf):
     with open(ocr_data_filename, 'w', encoding='utf-8') as ocr_data_file:
         ocr_data_file.write(data)
     
-    return image_filename, text_filename
+    return image_filename, text_filename, preprocessed_image_filename  # Return preprocessed image filename
 
 def load_documents():
     documents = []
@@ -110,8 +118,21 @@ def load_documents():
                             })
     return documents
 
+# Initialize session state for stored documents and document hashes
 if 'stored_documents' not in st.session_state:
     st.session_state.stored_documents = load_documents()
+if 'document_hashes' not in st.session_state:
+    st.session_state.document_hashes = set()
+
+def get_file_hash(uploaded_file):
+    # Read the file content and calculate its hash
+    hash_md5 = hashlib.md5()
+    for chunk in uploaded_file.getbuffer():
+        hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+# Create a modal instance
+# modal = Modal(key="image_modal", title="Document Preview",padding=20)
 
 # Use custom CSS classes for headers
 st.markdown("<h1 class='small-header'>Document and Record Management System (DRMS)</h1>", unsafe_allow_html=True)
@@ -120,10 +141,26 @@ st.markdown("<h2 class='smaller-header'>Upload Document</h2>", unsafe_allow_html
 uploaded_file = st.file_uploader("Choose a document...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    text, category, data, pdf = process_document(uploaded_file)
-    image_path, text_path = save_document(uploaded_file, text, category, data, pdf)
-    st.session_state.stored_documents.append({"filename": uploaded_file.name, "image_path": image_path, "text_path": text_path, "category": category})
-    st.success("Document uploaded and processed!")
+    # Calculate the hash of the uploaded file
+    file_hash = get_file_hash(uploaded_file)
+    
+    # Check if the hash already exists
+    if file_hash not in st.session_state.document_hashes:
+        text, category, data, pdf, preprocessed_image = process_document(uploaded_file)
+        image_path, text_path, preprocessed_image_filename = save_document(uploaded_file, text, category, data, pdf, preprocessed_image)
+        
+        # Store the hash and document details
+        st.session_state.stored_documents.append({
+            "filename": uploaded_file.name,
+            "image_path": image_path,
+            "text_path": text_path,
+            "category": category
+        })
+        st.session_state.document_hashes.add(file_hash)  # Add the hash to the set
+        st.success("Document uploaded and processed!")
+        streamlit_js_eval(js_expressions="parent.window.location.reload()")
+    else:
+        st.warning("This document has already been uploaded.")
 
 # Search section
 st.markdown("<h2 class='smaller-header'>Search Documents</h2>", unsafe_allow_html=True)
@@ -133,7 +170,7 @@ search_query = st.text_input("Enter search text")
 if 'selected_categories' not in st.session_state:
     st.session_state.selected_categories = {
         "Policy": False,
-        "Press Release": False,
+        "Press_Release": False,
         "Education": False,
         "ID": False
     }
@@ -160,6 +197,21 @@ for doc in st.session_state.stored_documents:
             else:
                 filtered_documents.append(doc)
 
+@st.dialog("Document Preview")
+def show_document_preview(doc):
+    if search_query != '':
+        base_name = os.path.splitext(doc["image_path"])[0]
+        data_path = base_name + '_data.txt'
+        preprocessed_path = base_name + '_preprocessed.png'
+        output_img_path = base_name + '_temp.png'
+        highlight_text(doc["image_path"], data_path, preprocessed_path, search_query, output_img_path)
+        st.image(output_img_path, use_column_width=True)
+        # Delete the temporary image file after showing it
+        os.remove(output_img_path)
+    else:
+        st.image(doc["image_path"], use_column_width=True)
+    st.write(f"Category: {doc['category']}")
+
 # Display stored documents
 st.markdown("<h2 class='smaller-header'>Stored Documents</h2>", unsafe_allow_html=True)
 if filtered_documents:
@@ -167,15 +219,9 @@ if filtered_documents:
     for i, doc in enumerate(filtered_documents):
         with cols[i % 3]:  # Cycle through columns
             st.markdown(f"<h3 class='smaller-header'>{doc['filename']}</h3>", unsafe_allow_html=True)
-            st.image(doc["image_path"], width=100)
-            st.write(f"Category: {doc['category']}")
-
-            # Add a button to navigate to the slider page
-            if st.button("View", key=f"view_{i}"):  # Unique key for each button
-                # Store the index of the document
-                st.session_state.doc_index = i
-                # Navigate to the slider page
-                st.query_params(page="slider")
-
+            st.image(doc['image_path'], use_column_width=False, width=150)
+            # Open the modal on click
+            if st.button("View Document", key=doc['filename']):
+                show_document_preview(doc)
 else:
     st.write("No documents found.")
