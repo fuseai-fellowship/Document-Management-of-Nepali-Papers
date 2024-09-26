@@ -1,10 +1,11 @@
-# recordnepali
+# Nepali Document and Record Management System
+
+https://github.com/user-attachments/assets/1caaf4a7-921b-4ec1-ac26-2054fca0b9c0
 
 ## Introduction
 ## Goals
 ## Contributors
 ## Project Architecture
-
 
 # Status
 ## Known Issue
