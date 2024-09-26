@@ -4,7 +4,6 @@ import os
 import pytesseract
 from PIL import Image
 from datetime import datetime
-import hashlib
 from Classification.predict import predict_category  # Import the predict_category function
 from OCR.preprocess import preprocess_image
 from OCR.highlighting import highlight_text
@@ -120,15 +119,7 @@ def load_documents():
 # Initialize session state for stored documents and document hashes
 if 'stored_documents' not in st.session_state:
     st.session_state.stored_documents = load_documents()
-if 'document_hashes' not in st.session_state:
-    st.session_state.document_hashes = set()
 
-def get_file_hash(uploaded_file):
-    # Read the file content and calculate its hash
-    hash_md5 = hashlib.md5()
-    for chunk in uploaded_file.getbuffer():
-        hash_md5.update(chunk)
-    return hash_md5.hexdigest()
 
 # Create a modal instance
 # modal = Modal(key="image_modal", title="Document Preview",padding=20)
@@ -141,10 +132,8 @@ uploaded_file = st.file_uploader("Choose a document...", type=["jpg", "jpeg", "p
 
 if uploaded_file is not None:
     # Calculate the hash of the uploaded file
-    file_hash = get_file_hash(uploaded_file)
     
     # Check if the hash already exists
-    if file_hash not in st.session_state.document_hashes:
         text, category, data, pdf, preprocessed_image = process_document(uploaded_file)
         image_path, text_path, preprocessed_image_filename = save_document(uploaded_file, text, category, data, pdf, preprocessed_image)
         
@@ -155,10 +144,8 @@ if uploaded_file is not None:
             "text_path": text_path,
             "category": category
         })
-        st.session_state.document_hashes.add(file_hash)  # Add the hash to the set
         st.success("Document uploaded and processed!")
         
-    else:
         st.warning("This document has already been uploaded.")
 
 # Search section
@@ -212,15 +199,42 @@ def show_document_preview(doc):
     st.write(f"Category: {doc['category']}")
 
 # Display stored documents
+# st.markdown("<h2 class='smaller-header'>Stored Documents</h2>", unsafe_allow_html=True)
+# if filtered_documents:
+#     cols = st.columns(3)  # Adjust the number of columns as needed
+#     for i, doc in enumerate(filtered_documents):
+#         with cols[i % 3]:  # Cycle through columns
+#             st.markdown(f"<h3 class='smaller-header'>{doc['filename']}</h3>", unsafe_allow_html=True)
+#             st.image(doc['image_path'], use_column_width=False, width=150)
+#             # Open the modal on click
+#             if st.button("View Document", key=doc['filename']):
+#                 show_document_preview(doc)
+# else:
+#     st.write("No documents found.")
+
 st.markdown("<h2 class='smaller-header'>Stored Documents</h2>", unsafe_allow_html=True)
+
 if filtered_documents:
     cols = st.columns(3)  # Adjust the number of columns as needed
     for i, doc in enumerate(filtered_documents):
         with cols[i % 3]:  # Cycle through columns
             st.markdown(f"<h3 class='smaller-header'>{doc['filename']}</h3>", unsafe_allow_html=True)
             st.image(doc['image_path'], use_column_width=False, width=150)
-            # Open the modal on click
-            if st.button("View Document", key=doc['filename']):
+            
+            # Create pdf_path for the document
+            pdf_path = os.path.splitext(doc["image_path"])[0] + '.pdf'  # Initialize pdf_path here
+            
+            # Open the modal on click with a single button
+            if st.button("View Document", key=f"{doc['filename']}_{i}"):  # Ensure unique keys
                 show_document_preview(doc)
+            
+            # Check if pdf_path exists and provide a download button
+            if os.path.exists(pdf_path):
+                st.download_button(
+                    label="Download PDF",
+                    data=open(pdf_path, 'rb').read(),
+                    file_name=os.path.basename(pdf_path),
+                    mime='application/pdf'
+                )
 else:
     st.write("No documents found.")

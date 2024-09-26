@@ -10,11 +10,14 @@ from nepalikit.manage_stopwords import load_stopwords
 from nepalikit.tokenization import Tokenizer
 
 
-extracted_text = "राजश्व न्यायाधिकरणमा रिक्त पदहरूका कार्यालयका कर्मचारीहरू पुनरावेदन अदालत अदालतको क्षेत्र जिल्ला जिल्ला अदालतमा रिक्त राजपत्र अनड्रित प्रथम श्रणी त्राहेक कर्मचारीहरू कार्यरत कर्मचारीहरू नियमहरू प्रारम्भ हुँदाका बखत सेवामा कार्यरत राजपत्र अन्रित उपनियम जुनसुकै लेखिएको पूर्ति प्रतिशत"
+# extracted_text = "राजश्व न्यायाधिकरणमा रिक्त पदहरूका कार्यालयका कर्मचारीहरू पुनरावेदन अदालत अदालतको क्षेत्र जिल्ला जिल्ला अदालतमा रिक्त राजपत्र अनड्रित प्रथम श्रणी त्राहेक कर्मचारीहरू कार्यरत कर्मचारीहरू नियमहरू प्रारम्भ हुँदाका बखत सेवामा कार्यरत राजपत्र अन्रित उपनियम जुनसुकै लेखिएको पूर्ति प्रतिशत"
 # Construct the paths relative to the current working directory
-vocab_file = os.path.join(os.getcwd(), 'Classification\Resources', 'tokenizer_vocab.json')
-model_path = os.path.join(os.getcwd(), 'Classification\Resources', 'nepali_text_classification_model.pth')
-stopwords_path = os.path.join(os.getcwd(), 'Classification\Resources', 'NepaliStopWords')
+# vocab_file = os.path.join(os.getcwd(), 'Classification\Resources', 'tokenizer_vocab.json')
+# model_path = os.path.join(os.getcwd(), 'Classification\Resources', 'nepali_text_classification_model.pth')
+# stopwords_path = os.path.join(os.getcwd(), 'Classification\Resources', 'NepaliStopWords')
+vocab_file = "/home/pranjal/Downloads/Document-Management-of-Nepali-Papers/src/recordnepalu/Classification/Resources/tokenizer_vocab.json"
+model_path = "/home/pranjal/Downloads/Document-Management-of-Nepali-Papers/src/recordnepalu/Classification/Resources/nepali_text_classification_model.pth"
+stopwords_path = "/home/pranjal/Downloads/Document-Management-of-Nepali-Papers/src/recordnepalu/Classification/Resources/NepaliStopWords"
 num_classes = 4
 vocab_size = 31159
 max_length = 256
@@ -63,4 +66,4 @@ def predict_category(input_text):
     predicted_class_name = class_names[predicted_label]
     return predicted_class_name
 
-print(f"Predicted class: {predict_category(extracted_text)}")
+# print(f"Predicted class: {predict_category(extracted_text)}")
