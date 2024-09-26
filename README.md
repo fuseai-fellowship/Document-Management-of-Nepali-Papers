@@ -1,4 +1,4 @@
-# recordnepali
+# Nepali Document and Record Management System
 
 ## Introduction
 ## Goals
