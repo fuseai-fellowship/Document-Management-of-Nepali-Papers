@@ -8,7 +8,6 @@ import hashlib
 from Classification.predict import predict_category  # Import the predict_category function
 from OCR.preprocess import preprocess_image
 from OCR.highlighting import highlight_text
-from streamlit_js_eval import streamlit_js_eval
 # Set the page configuration to wide layout
 st.set_page_config(layout="wide")
 
@@ -158,7 +157,7 @@ if uploaded_file is not None:
         })
         st.session_state.document_hashes.add(file_hash)  # Add the hash to the set
         st.success("Document uploaded and processed!")
-        streamlit_js_eval(js_expressions="parent.window.location.reload()")
+        
     else:
         st.warning("This document has already been uploaded.")
 

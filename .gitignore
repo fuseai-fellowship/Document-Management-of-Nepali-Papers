@@ -165,3 +165,5 @@ dataset/data/unprepared/*.jpeg
 dataset/data/unprepared/*.gif
 dataset/data/unprepared/*.bmp
 dataset/data/unprepared/*.tiff
+
+results/ 
