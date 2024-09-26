@@ -1,12 +1,14 @@
 import streamlit as st
 from streamlit_modal import Modal
 import os
+import shutil
 import pytesseract
 from PIL import Image
 from datetime import datetime
 from Classification.predict import predict_category  # Import the predict_category function
 from OCR.preprocess import preprocess_image
 from OCR.highlighting import highlight_text
+import time 
 # Set the page configuration to wide layout
 st.set_page_config(layout="wide")
 
@@ -34,7 +36,10 @@ st.markdown(
     .smaller-header {
         font-size: 1em; /* Decreased size */
     }
-
+      .stButton > button {
+        margin: 2px 0;
+        padding: 10px 20px;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -125,7 +130,7 @@ if 'stored_documents' not in st.session_state:
 # modal = Modal(key="image_modal", title="Document Preview",padding=20)
 
 # Use custom CSS classes for headers
-st.markdown("<h1 class='small-header'>Document and Record Management System (DRMS)</h1>", unsafe_allow_html=True)
+st.markdown("<h1 class='small-header'> Nepali Document and Record Management System (DRMS)</h1>", unsafe_allow_html=True)
 
 st.markdown("<h2 class='smaller-header'>Upload Document</h2>", unsafe_allow_html=True)
 uploaded_file = st.file_uploader("Choose a document...", type=["jpg", "jpeg", "png"])
@@ -145,8 +150,8 @@ if uploaded_file is not None:
             "category": category
         })
         st.success("Document uploaded and processed!")
+     
         
-        st.warning("This document has already been uploaded.")
 
 # Search section
 st.markdown("<h2 class='smaller-header'>Search Documents</h2>", unsafe_allow_html=True)
@@ -196,7 +201,22 @@ def show_document_preview(doc):
         os.remove(output_img_path)
     else:
         st.image(doc["image_path"], use_column_width=True)
+    
+    buttons = st.columns(2)
+    with buttons[0]:
+        if os.path.exists(pdf_path):
+            if st.button(label="Open PDF", key=f"pdf_{doc['filename']}_{i}"):
+                os.startfile(pdf_path)
+    with buttons[1]:
+        #code to delete the document folder
+        if st.button(label="Delete Document", key=f"delete_{doc['filename']}_{i}"): 
+            shutil.rmtree(os.path.dirname(doc["image_path"]))
+            st.session_state.stored_documents.remove(doc)
+            time.sleep(1)
+            st.rerun()
+    
     st.write(f"Category: {doc['category']}")
+
 
 # Display stored documents
 # st.markdown("<h2 class='smaller-header'>Stored Documents</h2>", unsafe_allow_html=True)
@@ -220,21 +240,14 @@ if filtered_documents:
         with cols[i % 3]:  # Cycle through columns
             st.markdown(f"<h3 class='smaller-header'>{doc['filename']}</h3>", unsafe_allow_html=True)
             st.image(doc['image_path'], use_column_width=False, width=150)
-            
+            st.write(f"Category: {doc['category']}")
             # Create pdf_path for the document
             pdf_path = os.path.splitext(doc["image_path"])[0] + '.pdf'  # Initialize pdf_path here
             
-            # Open the modal on click with a single button
-            if st.button("View Document", key=f"{doc['filename']}_{i}"):  # Ensure unique keys
+            # Create a row with two columns for the buttons
+            
+            if st.button("View Document", key=f"{doc['filename']}_view_{i}"):  # Ensure unique keys
                 show_document_preview(doc)
             
-            # Check if pdf_path exists and provide a download button
-            if os.path.exists(pdf_path):
-                st.download_button(
-                    label="Download PDF",
-                    data=open(pdf_path, 'rb').read(),
-                    file_name=os.path.basename(pdf_path),
-                    mime='application/pdf'
-                )
 else:
     st.write("No documents found.")
