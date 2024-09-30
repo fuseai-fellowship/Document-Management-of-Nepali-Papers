@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_modal import Modal
 import os
+import subprocess, sys
 import shutil
 import pytesseract
 from PIL import Image
@@ -206,7 +207,9 @@ def show_document_preview(doc):
     with buttons[0]:
         if os.path.exists(pdf_path):
             if st.button(label="Open PDF", key=f"pdf_{doc['filename']}_{i}"):
-                os.startfile(pdf_path)
+                # os.startfile(pdf_path)
+                opener = "open" if sys.platform == "darwin" else "xdg-open"
+                subprocess.call([opener, pdf_path])
     with buttons[1]:
         #code to delete the document folder
         if st.button(label="Delete Document", key=f"delete_{doc['filename']}_{i}"): 
