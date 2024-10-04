@@ -1,6 +1,10 @@
 # Nepali Document and Record Management System
 
-https://github.com/user-attachments/assets/1caaf4a7-921b-4ec1-ac26-2054fca0b9c0
+
+
+https://github.com/user-attachments/assets/86e35e48-cd95-4ab8-8a66-fea9eba24571
+
+
 
 ## Introduction
 ## Goals
