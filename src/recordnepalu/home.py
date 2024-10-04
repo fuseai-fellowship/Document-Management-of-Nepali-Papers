@@ -45,6 +45,10 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+def log_latency(filename, latency):
+    with open("../../results/latency_log.txt", "a") as f:
+        f.write(f"{filename}: {latency} seconds\n")
+
 def process_document(uploaded_file):
     # Preprocess the image
     preprocessed_image = preprocess_image(uploaded_file)
@@ -117,7 +121,8 @@ def load_documents():
                                 "filename": filename,
                                 "image_path": image_path,
                                 "text_path": text_path,
-                                "category": category
+                                "category": category,
+                                "pdf_path": os.path.join(document_dir, f"{os.path.splitext(filename)[0]}.pdf")
                             })
     return documents
 
@@ -137,7 +142,7 @@ uploaded_file = st.file_uploader("Choose a document...", type=["jpg", "jpeg", "p
 
 if uploaded_file is not None:
     # Calculate the hash of the uploaded file
-    
+        start_time = time.time()
     # Check if the hash already exists
         text, category, data, pdf, preprocessed_image = process_document(uploaded_file)
         image_path, text_path, preprocessed_image_filename = save_document(uploaded_file, text, category, data, pdf, preprocessed_image)
@@ -147,10 +152,14 @@ if uploaded_file is not None:
             "filename": uploaded_file.name,
             "image_path": image_path,
             "text_path": text_path,
-            "category": category
+            "category": category,
+            "pdf_path":os.path.splitext(image_path)[0] + '.pdf'  # Initialize pdf_path here
         })
         st.success("Document uploaded and processed!")
-     
+        end_time = time.time()  # Record end time
+        latency = end_time - start_time  #
+
+        log_latency(uploaded_file.name, latency)
         
 
 # Search section
@@ -204,9 +213,9 @@ def show_document_preview(doc):
     
     buttons = st.columns(2)
     with buttons[0]:
-        if os.path.exists(pdf_path):
+        if os.path.exists(doc["pdf_path"]):
             if st.button(label="Open PDF", key=f"pdf_{doc['filename']}_{i}"):
-                os.startfile(pdf_path)
+                os.startfile(doc["pdf_path"])
     with buttons[1]:
         #code to delete the document folder
         if st.button(label="Delete Document", key=f"delete_{doc['filename']}_{i}"): 
@@ -242,7 +251,7 @@ if filtered_documents:
             st.image(doc['image_path'], use_column_width=False, width=150)
             st.write(f"Category: {doc['category']}")
             # Create pdf_path for the document
-            pdf_path = os.path.splitext(doc["image_path"])[0] + '.pdf'  # Initialize pdf_path here
+          
             
             # Create a row with two columns for the buttons
             
