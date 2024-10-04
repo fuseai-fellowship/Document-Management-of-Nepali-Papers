@@ -17,6 +17,13 @@ This project aims to address these challenges by developing a DRMS that leverage
 2. **Automated Document Classification**: Develop an automated document classifier using Bi-LSTM to categorize documents based on their content, reducing reliance on manual classification processes.
 3. **Enhanced Information Retrieval**: Enable users to conduct full-text searches on document contents, allowing for quick and efficient location of relevant documents.
 ## Contributors
+[**Arun Poudel**](https://github.com/poudelarun) - Built Image Preprocessing Pipeline, Dataset Generation, Streamlit UI Development
+
+[**Pranjal Khadka**](https://github.com/pranzalkhadka) - Built Document Classification Model, Docker Containerization and Project Deployment
+
+[**Samip Lamsal**](https://github.com/lamsalsamip1) - Fine Tuned Tesseract OCR, Built Augmentation Pipeline, Content-based Search & Project Integration
+
+
 ## Project Architecture
 
 # Status
