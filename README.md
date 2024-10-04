@@ -7,6 +7,9 @@ https://github.com/user-attachments/assets/86e35e48-cd95-4ab8-8a66-fea9eba24571
 
 
 ## Introduction
+In the digital age, maintaining the accessibility, security, and longevity of information requires effective document management and preservation. However,In Nepal, a large portion of crucial documents like historical archives, legal papers, or government documents are still stored in paper format. This dependence on the storage of information physically, comes with many disadvantages including destruction and misplacement of documents, as well as broken retrieval systems. Additionally, these papers were usually organized manually and in most cases, the sorting produces unreliable results, which explains the poor organization of such documents.
+One more aspect which continues to aggravate the problems is that there is no proper Document and Record Management System (DRMS) which is specifically designed for Nepalese documents. Such global DRMS solutions do exist, however, most do not take into consideration the types of documents which are of Nepali origin and the type of software which supports these documents. Consequently, it is apparent that there is an urgent need of such system which is capable of not only digitizing the records but also bringing about a proper and efficient way of classifying the records.
+The aim is to overcome these obstacles by making a DRMS which involves the use of Tesseract OCR technology to convert Nepali documents and images into digital form. Furthermore, the project will incorporate a machine that can automatically classify the documents according to the content making the use of manual work minimal and optimizing the document management processes. Targeting particularly the case of Nepal, this project endeavors to narrow the discrepancy between DOIM (Document and Information Management) needs and current DRMS (Document and Record Management systems) provisions.
 ## Goals
 ## Contributors
 ## Project Architecture
