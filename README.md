@@ -13,6 +13,9 @@ One more aspect which continues to aggravate the problems is that there is no pr
 
 This project aims to address these challenges by developing a DRMS that leverages Tesseract OCR technology to digitize Nepali documents and images, preserving their content in digital form. Additionally, the project will implement an automated document classifier capable of categorizing documents based on their content, thereby reducing the dependency on manual processes and enhancing the overall efficiency of document management. By focusing on the specific context of Nepal, this project seeks to fill the gaps in existing DRMS solutions and provide a more tailored approach to document and record management in the country.
 ## Goals
+1. **Digitization of Nepali Documents**: Utilize Tesseract OCR technology to convert physical Nepali documents and images into digital format, preserving their content.
+2. **Automated Document Classification**: Develop an automated document classifier using Bi-LSTM to categorize documents based on their content, reducing reliance on manual classification processes.
+3. **Enhanced Information Retrieval**: Enable users to conduct full-text searches on document contents, allowing for quick and efficient location of relevant documents.
 ## Contributors
 ## Project Architecture
 
